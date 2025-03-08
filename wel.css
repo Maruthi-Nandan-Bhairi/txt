@@ -1,0 +1,22 @@
+body{
+    background-color: black;
+    border-top: 10px;
+    border-bottom: 10px;
+    border-radius: 10px;
+}
+h1{
+    background-color:white;
+    color: yellowgreen;
+}
+button{
+    background-color:white;
+    border: none;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    top:80%;
+    left: 50%;
+    padding: 20px 50px;
+    font-size: 30px;
+    font-weight: bold;
+    border-radius: 5%;
+}
