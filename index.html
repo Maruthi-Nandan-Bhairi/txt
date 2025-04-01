@@ -1,12 +1,72 @@
 <html>
 <head>
+    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,intial-scale=1.0">
     <title>LIVE CODE EDITOR...
     </title>
-    <link rel="stylesheet"href="wel.css">
+    <style>
+        body{
+            background-color: rgb(25,25,25);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+        h1{
+            font-size: 12rem;
+            font-family:"garmond";
+        }
+       h1{
+        color:transparent;
+        -webkit-text-stroke: 10px magenta;
+        position: relative;
+
+}
+h1::before{
+    content: "WELCOME";
+    position: absolute;
+    width: 0%;
+    height: 100%;
+    overflow: hidden;
+    color:magenta;
+    border-right: 8px solid maroon;
+    transition: 1s ease-in-out;
+}
+h1:hover::before{
+    width:100%;
+    filter: drop-shadow(1 1 35px magenta);
+}
+button{
+    background-color:white;
+    border: none;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    top:85%;
+    left: 50%;
+    padding: 20px 50px;
+    font-size: 30px;
+    font-weight: bold;
+    border-radius: 15%;
+}
+    </style>
 </head>
 <body>
-    <h1 align="center">WELCOME TO LIVE CODE EDITOR</h1>
-    <button align="buttom"><a href="code.html">TxT</a>
-    </button>
+    <h1>WELCOME</h1>
+    <button align="bottom"><a href="code.html">OPEN</button></a>
 </body>
+</html>
+
+    
+
+
+
+
+
+
+
+
+
+
+    
 </html>
