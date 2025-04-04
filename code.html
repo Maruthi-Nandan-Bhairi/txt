@@ -2,79 +2,160 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <meta http-equiv="refresh" content="500">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta http-equiv="refresh" content="500">
+  <title>LIVE CODE EDITOR - ACE</title>
 
-    <title>LIVE CODE EDITOR</title>
-    <link rel="stylesheet" href="style24.css">
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/ec1da4970b.js" crossorigin="anonymous"></script>
 
-    <script src="https://kit.fontawesome.com/ec1da4970b.js"></script>
+  <!-- Ace Editor + Extensions -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ext-language_tools.min.js"></script>
 
-    <script>
-        // Show popup before refresh
-        window.addEventListener("beforeunload", function (event) {
-            event.returnValue = "Are you sure you want to refresh? Any unsaved changes will be lost.";
-        });
+  <style>
+    .editor {
+      height: 200px;
+      width: 100%;
+      border: 1px solid black;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
 
-        function run() {
-            let htmlCode = document.getElementById("html-code").value;
-            let cssCode = document.getElementById("css-code").value;
-            let jsCode = document.getElementById("js-code").value;
+    .save-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 12px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+    }
 
-            output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "</style>";
-            output.contentWindow.eval(jsCode);
-        }
+    .save-btn:hover {
+      background-color: blue;
+    }
 
-        function saveFile(filename, content) {
-            let blob = new Blob([content], { type: "text/plain" });
-            let a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            a.click();
-        }
-    </script>
-    
-    <style>
-        .save-btn {
-            display: inline-block;
-            margin-top: 5px;
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-        }
+    .container {
+        background-color:whitesmoke;
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+    }
 
-        .save-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    .left {
+      flex: 1;
+    }
+
+    .right {
+      flex: 1;
+    }
+
+    iframe {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+  </style>
+
+  <script>
+    let htmlEditor, cssEditor, jsEditor;
+
+    window.addEventListener("beforeunload", function (event) {
+      event.returnValue = "Are you sure you want to refresh? Any unsaved changes will be lost.";
+    });
+
+    window.onload = function () {
+      ace.require("ace/ext/language_tools");
+
+      htmlEditor = ace.edit("html-editor", {
+        mode: "ace/mode/html",
+        theme: "ace/theme/monokai",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      cssEditor = ace.edit("css-editor", {
+        mode: "ace/mode/css",
+        theme: "ace/theme/monokai",
+        
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      jsEditor = ace.edit("js-editor", {
+        mode: "ace/mode/javascript",
+        theme: "ace/theme/monokai",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      htmlEditor.session.on('change', run);
+      cssEditor.session.on('change', run);
+      jsEditor.session.on('change', run);
+    };
+
+    function run() {
+      let htmlCode = htmlEditor.getValue();
+      let cssCode = cssEditor.getValue();
+      let jsCode = jsEditor.getValue();
+
+      let output = document.getElementById("output");
+      output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "</style>";
+      output.contentWindow.eval(jsCode);
+    }
+
+    function saveFile(filename, content) {
+      let blob = new Blob([content], { type: "text/plain" });
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+
+    function saveHTML() {
+      saveFile('index.html', htmlEditor.getValue());
+    }
+
+    function saveCSS() {
+      saveFile('style.css', cssEditor.getValue());
+    }
+
+    function saveJS() {
+      saveFile('script.js', jsEditor.getValue());
+    }
+  </script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="left">
-            <label><i class="fa-solid fa-code"></i> HTML</label>
-            <textarea id="html-code" onkeyup="run()" placeholder="Write HTML code here..."></textarea>
-            <button class="save-btn" onclick="saveFile('index.html', document.getElementById('html-code').value)">Save HTML</button>
+  <div class="container">
+    <div class="left">
+      <label><i class="fa-solid fa-code"></i> HTML</label>
+      <div id="html-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveHTML()">Save HTML</button>
 
-            <label><i class="fa-brands fa-css"></i> CSS</label>
-            <textarea id="css-code" onkeyup="run()" placeholder="Write CSS code here..."></textarea>
-            <button class="save-btn" onclick="saveFile('style.css', document.getElementById('css-code').value)">Save CSS</button>
+      <label></br><i class="fa-brands fa-css3-alt"></i> CSS</label>
+      <div id="css-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveCSS()">Save CSS</button>
 
-            <label><i class="fa-brands fa-js"></i> JAVASCRIPT</label>
-            <textarea id="js-code" onkeyup="run()" placeholder="Write JS code here..."></textarea>
-            <button class="save-btn" onclick="saveFile('script.js', document.getElementById('js-code').value)">Save JS</button>
-        </div>
-
-        <div class="right">
-            <label><i class="fa-solid fa-play"></i> OUTPUT</label>
-            <iframe id="output"></iframe>
-        </div>
+      <label></br><i class="fa-brands fa-js"></i> JAVASCRIPT</label>
+      <div id="js-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveJS()">Save JS</button>
     </div>
+
+    <div class="right">
+      <label><i class="fa-solid fa-play"></i> OUTPUT</label>
+      <iframe id="output"></iframe>
+    </div>
+  </div>
 </body>
 
 </html>
