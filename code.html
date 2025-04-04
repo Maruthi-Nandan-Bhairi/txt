@@ -1,40 +1,80 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,intial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="refresh" content="500">
+
     <title>LIVE CODE EDITOR</title>
     <link rel="stylesheet" href="style24.css">
-    <script src="https://kit.fontawesome.com/ec1da4970b.js"crossorigin="anonymous">
 
+    <script src="https://kit.fontawesome.com/ec1da4970b.js"></script>
+
+    <script>
+        // Show popup before refresh
+        window.addEventListener("beforeunload", function (event) {
+            event.returnValue = "Are you sure you want to refresh? Any unsaved changes will be lost.";
+        });
+
+        function run() {
+            let htmlCode = document.getElementById("html-code").value;
+            let cssCode = document.getElementById("css-code").value;
+            let jsCode = document.getElementById("js-code").value;
+
+            output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "</style>";
+            output.contentWindow.eval(jsCode);
+        }
+
+        function saveFile(filename, content) {
+            let blob = new Blob([content], { type: "text/plain" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+        }
     </script>
+    
+    <style>
+        .save-btn {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .save-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <div class="left">
-            <label><i class="fa-solid fa-code"></i>HTML</label>
-            <textarea id="html-code"onkeyup="run()" placeholder="write html code here..."></textarea>
-            <label><i class="fa-brands fa-css"></i>CSS</label>
-            <textarea id="css-code" onkeyup="run()" placeholder="write css code here..."></textarea>
-            <label><i class="fa-brands fa-js"></i>JAVASCRIPT</label>
-            <textarea id="js-code"onkeyup="run()" placeholder="write js code here..."></textarea>
+            <label><i class="fa-solid fa-code"></i> HTML</label>
+            <textarea id="html-code" onkeyup="run()" placeholder="Write HTML code here..."></textarea>
+            <button class="save-btn" onclick="saveFile('index.html', document.getElementById('html-code').value)">Save HTML</button>
+
+            <label><i class="fa-brands fa-css"></i> CSS</label>
+            <textarea id="css-code" onkeyup="run()" placeholder="Write CSS code here..."></textarea>
+            <button class="save-btn" onclick="saveFile('style.css', document.getElementById('css-code').value)">Save CSS</button>
+
+            <label><i class="fa-brands fa-js"></i> JAVASCRIPT</label>
+            <textarea id="js-code" onkeyup="run()" placeholder="Write JS code here..."></textarea>
+            <button class="save-btn" onclick="saveFile('script.js', document.getElementById('js-code').value)">Save JS</button>
         </div>
+
         <div class="right">
-            <label><i class="fa-solid fa-play"></i>OUTPUT</label>
+            <label><i class="fa-solid fa-play"></i> OUTPUT</label>
             <iframe id="output"></iframe>
         </div>
-    <script>
-        function run() {
-            let htmlCode = document.getElementById("html-code").value;
-            let cssCode = document.getElementById("css-code").value;
-            let jsCode = document.getElementById("js-code").value;
-            let outpu = document.getElementById("output").value;
-
-            output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "<style>";
-            output.contentWindow.eval(jsCode);
-
-        }
-    </script>
+    </div>
 </body>
+
 </html>
