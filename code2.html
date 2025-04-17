@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta http-equiv="refresh" content="500">
+  <title>LIVE CODE EDITOR - ACE</title>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/ec1da4970b.js" crossorigin="anonymous"></script>
+
+  <!-- Ace Editor + Extensions -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ext-language_tools.min.js"></script>
+
+  <style>
+    .editor {
+      height: 200px;
+      width: 100%;
+      border: 1px solid black;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .save-btn {
+      display: inline-block;
+      margin-bottom: 25px;
+      padding: 8px 12px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .save-btn:hover {
+      background-color: blue;
+    }
+
+    .container {
+      background-color: whitesmoke;
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .left {
+      flex: 1;
+    }
+
+    .right {
+      flex: 1;
+    }
+
+    iframe {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    /* Stopwatch Styles */
+    #stopwatch {
+      text-align: center;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #fff;
+      width: 300px;
+      border: 2px solid black;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #display {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    #popup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      border: 2px solid black;
+      padding: 20px 40px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      font-size: 18px;
+      z-index: 1000;
+      display: none;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    #popup button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+    let htmlEditor, cssEditor, jsEditor;
+
+    window.addEventListener("beforeunload", function (event) {
+      event.returnValue = "Are you sure you want to refresh? Any unsaved changes will be lost.";
+    });
+
+    window.onload = function () {
+      ace.require("ace/ext/language_tools");
+
+      htmlEditor = ace.edit("html-editor", {
+        mode: "ace/mode/html",
+        theme: "ace/theme/monokai",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      cssEditor = ace.edit("css-editor", {
+        mode: "ace/mode/css",
+        theme: "ace/theme/monokai",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      jsEditor = ace.edit("js-editor", {
+        mode: "ace/mode/javascript",
+        theme: "ace/theme/monokai",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        enableSnippets: true
+      });
+
+      htmlEditor.session.on('change', run);
+      cssEditor.session.on('change', run);
+      jsEditor.session.on('change', run);
+    };
+
+    function run() {
+      let htmlCode = htmlEditor.getValue();
+      let cssCode = cssEditor.getValue();
+      let jsCode = jsEditor.getValue();
+
+      let output = document.getElementById("output");
+      output.contentDocument.body.innerHTML = htmlCode + "<style>" + cssCode + "</style>";
+      output.contentWindow.eval(jsCode);
+    }
+
+    function saveFile(filename, content) {
+      let blob = new Blob([content], { type: "text/plain" });
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+
+    function saveHTML() {
+      saveFile('index.html', htmlEditor.getValue());
+    }
+
+    function saveCSS() {
+      saveFile('style.css', cssEditor.getValue());
+    }
+
+    function saveJS() {
+      saveFile('script.js', jsEditor.getValue());
+    }
+
+    // Stopwatch Logic
+    let stopwatchInterval;
+    let startTime;
+    let userSetTime = 0;
+
+    function startStopwatch() {
+      const input = document.getElementById('set-time').value;
+      userSetTime = parseInt(input);
+
+      if (isNaN(userSetTime) || userSetTime <= 0) {
+        alert("Please enter a valid number of seconds.");
+        return;
+      }
+
+      const display = document.getElementById('display');
+      let elapsed = 0;
+      startTime = Date.now();
+
+      clearInterval(stopwatchInterval);
+
+      stopwatchInterval = setInterval(() => {
+        elapsed = Math.floor((Date.now() - startTime) / 1000);
+        let hrs = Math.floor(elapsed / 3600);
+        let mins = Math.floor((elapsed % 3600) / 60);
+        let secs = elapsed % 60;
+
+        display.textContent =
+          `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (elapsed >= userSetTime) {
+          clearInterval(stopwatchInterval);
+          showTimeoutPopup();
+        }
+      }, 1000);
+    }
+
+    function showTimeoutPopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'block';
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left">
+      <label><i class="fa-solid fa-code"></i> HTML</label>
+      <div id="html-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveHTML()">Save HTML</button>
+
+      <label></br><i class="fa-brands fa-css3-alt"></i> CSS</label>
+      <div id="css-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveCSS()">Save CSS</button>
+
+      <label></br><i class="fa-brands fa-js"></i> JAVASCRIPT</label>
+      <div id="js-editor" class="editor"></div>
+      <button class="save-btn" onclick="saveJS()">Save JS</button>
+    </div>
+
+    <div class="right">
+      <label><i class="fa-solid fa-play"></i> OUTPUT</label>
+      <iframe id="output"></iframe>
+    </div>
+  </div>
+
+  <!-- Stopwatch -->
+  <div id="stopwatch">
+    <h2>Stopwatch ⏱️</h2>
+    <div id="display">00:00:00</div>
+    <label>Set Time (seconds):</label>
+    <input type="number" id="set-time" placeholder="e.g. 10" style="padding: 5px; width: 80px; margin: 0 10px;">
+    <button onclick="startStopwatch()" class="save-btn">Start</button>
+  </div>
+
+  <!-- Timeout Popup -->
+  <div id="popup">
+    <strong>⏰ Time's Up!</strong><br><br>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</body>
+
+</html>
